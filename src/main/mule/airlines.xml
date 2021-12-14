@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="93393175-b4d3-49c2-a42d-32d350e517b8" >
+		<http:listener-connection host="0.0.0.0" port="${http.port}" />
+	</http:listener-config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="5823fef4-14a2-4b61-9e0e-faa1ad3f5194" >
+		<db:my-sql-connection host="${onlinedb.host}" port="${onlinedb.port}" user="${onlinedb.username}" password="${onlinedb.password}" database="${onlinedb.database}" />
+	</db:config>
+	<flow name="getairlines" doc:id="019b9e1c-aa1e-4480-a59b-7f5ea677111d" >
+		<http:listener doc:name="Listener" doc:id="1f781274-9403-448d-9adc-c216ba173630" config-ref="HTTP_Listener_config" path="/airlines"/>
+		<db:select doc:name="Select" doc:id="5893a136-8ff4-48aa-ad25-9eb07ee9fc53" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from Airlines]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="9dd794a7-58ed-4d11-9875-7d15b9a7ba45" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="34e66322-74f8-4b94-b130-6b360bd89825" message="flow is ended sucesssfully"/>
+	</flow>
+	<flow name="postairlines" doc:id="8e5e3fee-64d9-483b-be18-f59c4bd65926" >
+		<http:listener doc:name="Listener" doc:id="fa3ca783-c2e8-4ffe-9f90-a4f66d5a1092" config-ref="HTTP_Listener_config" allowedMethods="POST" path="/airlines1"/>
+		<db:insert doc:name="Insert" doc:id="17e8fa7c-eaf3-47ec-9743-872f6648611e" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into Airlines values (:F_NAME, :F_ID, :F_DEST, :F_PRICE, :F_EMPTYSEATS)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{"F_NAME":payload.F_NAME, "F_ID":payload.F_ID,"F_DEST":payload.F_DEST, "F_PRICE":payload.F_PRICE,"F_EMPTYSEATS": payload.F_EMPTYSEATS }]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Message" doc:id="328c0f34-14d0-45ce-b420-52c785fb7866" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d1a55f2b-19c4-4434-887f-79c0dc5ed14c" message='#["message":"data inserted successfully"]'/>
+	</flow>
+</mule>
