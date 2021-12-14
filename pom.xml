@@ -32,13 +32,13 @@
 				<configuration>	
    <cloudHubDeployment>
       <uri>https://anypoint.mulesoft.com</uri>
-      <muleVersion>${muleVersion}</muleVersion>
-      <username>${username}</username>
-      <password>${password}</password>
-      <applicationName>${applicationName}</applicationName>
-      <environment>${environment}</environment>
-      <workers>${workers}</workers>
-      <workerType>${workerType}</workerType>
+      <muleVersion>$4.4.0</muleVersion>
+      <username>$Apisero2511</username>
+      <password>$Apisero2511</password>
+      <applicationName>airlines-ws-omvk958</applicationName>
+      <environment>$Sandbox</environment>
+      <workers>$1</workers>
+      <workerType>$Micro</workerType>
       <objectStoreV2>true</objectStoreV2>
    </cloudHubDeployment>
 					<sharedLibraries>
